@@ -8,24 +8,26 @@ export async function POST(req: Request) {
 
     // 1. Hantar mesej teks
     const message = `🚨 *Aduan Baharu*\nID: ${idResiden}\nKategori: ${kategori}\nNota: ${nota}`;
-    
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'Markdown' })
     });
 
-    // 2. Hantar gambar (Jika ada URL)
+    // 2. Hantar sebagai DOKUMEN (Kaedah paling stabil)
     if (imageUrl) {
-      // Kita cuba hantar dengan parameter 'photo' yang lebih bersih
-      const photoUrl = `https://api.telegram.org/bot${token}/sendPhoto?chat_id=${chatId}&photo=${encodeURIComponent(imageUrl)}`;
+      // Telegram akan memuat turun fail dari URL ini dan menghantarnya sebagai dokumen
+      const docUrl = `https://api.telegram.org/bot${token}/sendDocument`;
       
-      const response = await fetch(photoUrl, { method: 'POST' });
-      
-      if (!response.ok) {
-        const err = await response.text();
-        console.error("Gagal hantar gambar:", err);
-      }
+      await fetch(docUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          document: imageUrl,
+          caption: "Gambar bukti aduan."
+        })
+      });
     }
 
     return NextResponse.json({ success: true });
