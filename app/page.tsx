@@ -1,5 +1,4 @@
-
-expo"use client";
+"use client";
 
 import { useState } from "react";
 import { Camera, MapPin, AlertTriangle, Send } from "lucide-react";
@@ -123,3 +122,4 @@ export default function Home() {
       </div>
     </main>
   );
+}
