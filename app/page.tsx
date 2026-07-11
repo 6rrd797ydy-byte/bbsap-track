@@ -13,7 +13,6 @@ export default function Home() {
   const [nota, setNota] = useState("");
   const [namaGambar, setNamaGambar] = useState("");
 
-  // Fungsi untuk menangkap fail gambar yang dipilih
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setNamaGambar(e.target.files[0].name);
@@ -25,14 +24,10 @@ export default function Home() {
     setIsSubmitting(true);
 
     try {
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-        throw new Error("Kunci NEXT_PUBLIC_SUPABASE_URL tidak ditemui di Vercel!");
-      }
-
       const pecahan = idResiden.split('/');
       const zonLorong = pecahan.length >= 2 ? `Lorong ${pecahan[0]}/${pecahan[1]}` : "Tidak Diketahui";
 
-      // Hantar data teks ke pangkalan data Supabase
+      // 1. Hantar data ke Supabase
       const { error } = await supabase
         .from('aduan')
         .insert([
@@ -45,9 +40,19 @@ export default function Home() {
           }
         ]);
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
+
+      // 2. Tembak Notifikasi ke Telegram melalui API Route
+      await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          zon_lorong: zonLorong,
+          kategori_isu: kategori,
+          nota_tambahan: nota,
+          id_residen: idResiden
+        })
+      });
 
       setSuccess(true);
       setIdResiden("");
@@ -80,7 +85,7 @@ export default function Home() {
                 </svg>
               </div>
               <h2 className="text-lg font-semibold text-green-800">Aduan Diterima!</h2>
-              <p className="text-sm text-green-600 mt-2">Data berjaya dihantar ke Supabase.</p>
+              <p className="text-sm text-green-600 mt-2">Data berjaya dihantar ke Supabase & Telegram.</p>
               <button 
                 onClick={() => setSuccess(false)}
                 className="mt-6 w-full bg-slate-800 text-white py-2 rounded-lg font-medium hover:bg-slate-700 transition"
@@ -129,7 +134,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Ruangan Muat Naik Gambar */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Gambar Bukti (Jika Ada)</label>
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-lg hover:bg-slate-50 transition">
