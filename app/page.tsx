@@ -1,65 +1,125 @@
-import Image from "next/image";
+
+expo"use client";
+
+import { useState } from "react";
+import { Camera, MapPin, AlertTriangle, Send } from "lucide-react";
 
 export default function Home() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulasi kelewatan penghantaran ke Supabase (akan diganti dengan kod backend sebenar nanti)
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSuccess(true);
+    }, 1500);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
+      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+        {/* Header Rasmi */}
+        <div className="bg-slate-800 p-6 text-white text-center">
+          <h1 className="text-2xl font-bold tracking-tight">BBSAP-Track</h1>
+          <p className="text-sm text-slate-300 mt-1">Sistem Aduan Kutipan Sisa Pepejal</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Borang Aduan */}
+        <div className="p-6">
+          {success ? (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-semibold text-green-800">Aduan Diterima!</h2>
+              <p className="text-sm text-green-600 mt-2">Wakil residen akan menyemak laporan anda sebentar lagi.</p>
+              <button 
+                onClick={() => setSuccess(false)}
+                className="mt-6 w-full bg-slate-800 text-white py-2 rounded-lg font-medium hover:bg-slate-700 transition"
+              >
+                Buat Aduan Baharu
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-5">
+              
+              {/* ID Residen */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">ID Log Masuk (No Rumah)</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <MapPin className="h-5 w-5 text-slate-400" />
+                  </div>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="Cth: 1/25/2189" 
+                    className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-slate-500 focus:border-slate-500 text-sm"
+                  />
+                </div>
+                <p className="text-xs text-slate-500 mt-1">Format: [Fasa]/[Lorong]/[NoRumah]</p>
+              </div>
+
+              {/* Kategori Isu */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Kategori Isu</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <AlertTriangle className="h-5 w-5 text-slate-400" />
+                  </div>
+                  <select 
+                    required
+                    className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-slate-500 focus:border-slate-500 text-sm appearance-none bg-white"
+                  >
+                    <option value="">Sila Pilih Kategori...</option>
+                    <option value="Kutipan Lewat">Kutipan Terlepas / Lewat</option>
+                    <option value="Lori Uzur">Tumpahan Air / Lori Uzur</option>
+                    <option value="Tong Rosak">Tong Sampah Rosak / Pecah</option>
+                    <option value="Lain-lain">Lain-lain</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Muat Naik Gambar */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Gambar Bukti (Jika Ada)</label>
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-lg hover:bg-slate-50 transition">
+                  <div className="space-y-1 text-center">
+                    <Camera className="mx-auto h-8 w-8 text-slate-400" />
+                    <div className="flex text-sm text-slate-600 justify-center">
+                      <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
+                        <span>Muat Naik Imej</span>
+                        <input type="file" className="sr-only" accept="image/*" />
+                      </label>
+                    </div>
+                    <p className="text-xs text-slate-500">PNG, JPG sehingga 5MB</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Butang Hantar */}
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${isSubmitting ? 'bg-slate-400' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
+              >
+                {isSubmitting ? (
+                  'Menghantar...'
+                ) : (
+                  <>
+                    Hantar Aduan <Send className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </button>
+            </form>
+          )}
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
-}
