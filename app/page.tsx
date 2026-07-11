@@ -8,7 +8,6 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   
-  // Pembolehubah (State) untuk menyimpan input pengguna
   const [idResiden, setIdResiden] = useState("");
   const [kategori, setKategori] = useState("");
   const [nota, setNota] = useState("");
@@ -16,33 +15,46 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Pecahkan ID untuk dapatkan nama zon (Contoh: "1/25/2189" -> "Lorong 1/25")
-    const pecahan = idResiden.split('/');
-    const zonLorong = pecahan.length >= 2 ? `Lorong ${pecahan[0]}/${pecahan[1]}` : "Tidak Diketahui";
 
-    // Menghantar data ke Supabase (Jadual 'aduan')
-    const { error } = await supabase
-      .from('aduan')
-      .insert([
-        {
-          id_residen: idResiden,
-          zon_lorong: zonLorong,
-          kategori_isu: kategori,
-          nota_tambahan: nota,
-          status: 'Pending'
-        }
-      ]);
+    try {
+      // 1. Semakan diagnostik Kunci Vercel
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+        throw new Error("Kunci NEXT_PUBLIC_SUPABASE_URL tidak ditemui di Vercel!");
+      }
 
-    setIsSubmitting(false);
+      // 2. Format Data
+      const pecahan = idResiden.split('/');
+      const zonLorong = pecahan.length >= 2 ? `Lorong ${pecahan[0]}/${pecahan[1]}` : "Tidak Diketahui";
 
-    if (error) {
-      alert("Ralat sistem: " + error.message);
-    } else {
+      // 3. Hantar ke Supabase
+      const { error } = await supabase
+        .from('aduan')
+        .insert([
+          {
+            id_residen: idResiden,
+            zon_lorong: zonLorong,
+            kategori_isu: kategori,
+            nota_tambahan: nota,
+            status: 'Pending'
+          }
+        ]);
+
+      if (error) {
+        throw new Error(error.message); // Tangkap ralat dari Supabase
+      }
+
+      // Jika berjaya
       setSuccess(true);
       setIdResiden("");
       setKategori("");
       setNota("");
+
+    } catch (err: any) {
+      // Paparkan ralat terus ke skrin telefon
+      alert("RALAT TEKNIKAL: " + err.message);
+    } finally {
+      // Bebaskan butang tidak kira berjaya atau gagal
+      setIsSubmitting(false);
     }
   };
 
@@ -50,7 +62,8 @@ export default function Home() {
     <main className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
       <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
         <div className="bg-slate-800 p-6 text-white text-center">
-          <h1 className="text-2xl font-bold tracking-tight">BBSAP-Track</h1>
+          {/* Tajuk ditukar untuk pengesahan visual */}
+          <h1 className="text-2xl font-bold tracking-tight">BBSAP-Track (Versi Debug)</h1>
           <p className="text-sm text-slate-300 mt-1">Sistem Aduan Kutipan Sisa Pepejal</p>
         </div>
 
@@ -63,7 +76,7 @@ export default function Home() {
                 </svg>
               </div>
               <h2 className="text-lg font-semibold text-green-800">Aduan Diterima!</h2>
-              <p className="text-sm text-green-600 mt-2">Wakil residen akan menyemak laporan anda sebentar lagi.</p>
+              <p className="text-sm text-green-600 mt-2">Data berjaya dihantar ke Supabase.</p>
               <button 
                 onClick={() => setSuccess(false)}
                 className="mt-6 w-full bg-slate-800 text-white py-2 rounded-lg font-medium hover:bg-slate-700 transition"
@@ -103,11 +116,11 @@ export default function Home() {
                     onChange={(e) => setKategori(e.target.value)}
                     className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-slate-500 focus:border-slate-500 text-sm appearance-none bg-white"
                   >
-                    <option value="">Sila Pilih Kategori...</option>
-                    <option value="Kutipan Lewat">Kutipan Terlepas / Lewat</option>
-                    <option value="Tumpahan Air/Lori Uzur">Tumpahan Air / Lori Uzur</option>
-                    <option value="Tong Sampah Rosak">Tong Sampah Rosak / Pecah</option>
-                    <option value="Lain-lain">Lain-lain</option>
+                        <option value="">Sila Pilih Kategori...</option>
+                        <option value="Kutipan Lewat">Kutipan Terlepas / Lewat</option>
+                        <option value="Tumpahan Air/Lori Uzur">Tumpahan Air / Lori Uzur</option>
+                        <option value="Tong Sampah Rosak">Tong Sampah Rosak / Pecah</option>
+                        <option value="Lain-lain">Lain-lain</option>
                   </select>
                 </div>
               </div>
