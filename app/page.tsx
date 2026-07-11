@@ -128,7 +128,7 @@ export default function Home() {
                 disabled={isSubmitting}
                 className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${isSubmitting ? 'bg-slate-400' : 'bg-blue-600 hover:bg-blue-700'} transition-colors`}
               >
-                {isSubmitting ? 'Menghantar Data...' : <>Hantar Aduan <Send className="ml-2 h-4 w-4" /></>}
+                {isSubmitting ? 'Menghantar Data....' : <>Hantar Aduan <Send className="ml-2 h-4 w-4" /></>}
               </button>
             </form>
           )}
