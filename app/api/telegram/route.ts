@@ -6,25 +6,30 @@ export async function POST(req: Request) {
     const token = process.env.TELEGRAM_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
+    // 1. Hantar mesej teks
     const message = `🚨 *Aduan Baharu*\nID: ${idResiden}\nKategori: ${kategori}\nNota: ${nota}`;
-
-    // Gunakan sendPhoto jika ada gambar, jika tidak gunakan sendMessage
-    const endpoint = imageUrl 
-      ? `https://api.telegram.org/bot${token}/sendPhoto` 
-      : `https://api.telegram.org/bot${token}/sendMessage`;
-
-    const payload = imageUrl 
-      ? { chat_id: chatId, photo: imageUrl, caption: message, parse_mode: 'Markdown' }
-      : { chat_id: chatId, text: message, parse_mode: 'Markdown' };
-
-    await fetch(endpoint, {
+    
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'Markdown' })
     });
+
+    // 2. Hantar gambar (Jika ada URL)
+    if (imageUrl) {
+      // Kita cuba hantar dengan parameter 'photo' yang lebih bersih
+      const photoUrl = `https://api.telegram.org/bot${token}/sendPhoto?chat_id=${chatId}&photo=${encodeURIComponent(imageUrl)}`;
+      
+      const response = await fetch(photoUrl, { method: 'POST' });
+      
+      if (!response.ok) {
+        const err = await response.text();
+        console.error("Gagal hantar gambar:", err);
+      }
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Gagal hantar telegram' }, { status: 500 });
+    return NextResponse.json({ error: 'Gagal' }, { status: 500 });
   }
 }
